@@ -655,11 +655,6 @@ function Gift1TimelinePuzzle({
     setItems((prev) => {
       const next = [...prev];
       [next[a], next[b]] = [next[b], next[a]];
-      logEvent("gift1_reorder", {
-        from: a,
-        to: b,
-        next: next.map((x) => x.id),
-      });
       return next;
     });
   };
