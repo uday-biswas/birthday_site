@@ -26,7 +26,6 @@ export default function App() {
   const pageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    logEvent("page_view");
     const onUnload = () => logEvent("page_unload");
     window.addEventListener("beforeunload", onUnload);
     return () => window.removeEventListener("beforeunload", onUnload);
@@ -64,8 +63,6 @@ export default function App() {
         if (g >= gift) next[g] = false;
       }
     }
-
-    logEvent("dev_set_gift_unlock", { gift, value, next });
     return next;
   });
 };
@@ -111,7 +108,6 @@ useEffect(() => {
       const el = document.getElementById("gift3-greedy");
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
-        logEvent("gift3_scrolled_to_greedy");
       }
     }, 50);
   }
@@ -132,7 +128,6 @@ useEffect(() => {
         <Intro
           onDone={() => {
             setIntroDone(true);
-            logEvent("intro_done");
             setTimeout(() => scrollTo("hero"), 150);
           }}
         />
@@ -150,7 +145,6 @@ useEffect(() => {
             <button
               className="btn primary"
               onClick={() => {
-                logEvent("hero_start_click");
                 scrollTo("roadmap");
               }}
             >
@@ -387,7 +381,6 @@ function Gift3GreedySequence({ onNext }: { onNext: () => void }) {
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
-    logEvent("gift3_sequence_start");
 
     const timers: number[] = [];
 
@@ -395,7 +388,6 @@ function Gift3GreedySequence({ onNext }: { onNext: () => void }) {
     for (let i = 0; i < lines.length; i++) {
       const t = window.setTimeout(() => {
         setIdx(i + 1);
-        logEvent("gift3_sequence_line_shown", { index: i, text: lines[i] });
       }, 3000 * (i + 1));
       timers.push(t);
     }
@@ -421,7 +413,6 @@ function Gift3GreedySequence({ onNext }: { onNext: () => void }) {
         className="btn"
         style={{ marginTop: 20 }}
         onClick={() => {
-          logEvent("gift3_next_clicked");
           onNext();
         }}
       >
@@ -446,7 +437,6 @@ function RoadItem({
     <button
       className={`roadItem ${done ? "done" : ""} ${locked ? "locked" : ""}`}
       onClick={() => {
-        logEvent("roadmap_click", { gift: n, locked: !!locked });
         onClick();
       }}
       disabled={!!locked}
@@ -500,7 +490,6 @@ function GiftReveal({
         <button
           className="btn"
           onClick={() => {
-            logEvent("reveal_cta_click", { title, ctaLabel });
             onCta();
           }}
           style={{ marginTop: 14 }}
@@ -542,7 +531,6 @@ function Intro({ onDone }: { onDone: () => void }) {
   }, [i, showImage, onDone]);
 
   const advance = () => {
-    logEvent("intro_tap_advance", { index: i, showImage });
 
     if (!showImage) {
       if (i < steps.length - 1) setI(i + 1);
@@ -637,22 +625,22 @@ function Gift1TimelinePuzzle({
 }) {
   const correct = [
     {
-      id: "met",
+      id: "photoshoot",
       label: "Jhakaas photoshoot !!",
       img: new URL("./assets/gift1/1.jpeg", import.meta.url).toString(),
     },
     {
-      id: "joke",
+      id: "Cheesecake",
       label: "Cheesecake and fun",
       img: new URL("./assets/gift1/2.jpeg", import.meta.url).toString(),
     },
     {
-      id: "best",
+      id: "Mat",
       label: "Mat 😭",
       img: new URL("./assets/gift1/3.jpeg", import.meta.url).toString(),
     },
     {
-      id: "today",
+      id: "Macbooook",
       label: "Macbooook !!",
       img: new URL("./assets/gift1/4.jpeg", import.meta.url).toString(),
     },
@@ -662,10 +650,6 @@ function Gift1TimelinePuzzle({
 
   const [items, setItems] = useState<Item[]>(() => shuffle([...correct]));
   const [msg, setMsg] = useState<string>("Reorder the photos into the right timeline.");
-
-  useEffect(() => {
-    logEvent("gift_opened", { gift: 1 });
-  }, []);
 
   // Once solved becomes true (from parent), show a nice status message
   useEffect(() => {
@@ -779,10 +763,6 @@ function Gift2CipherPuzzle({
   const [msg, setMsg] = useState("Decode it and type the message.");
 
   useEffect(() => {
-    logEvent("gift_opened", { gift: 2 });
-  }, []);
-
-  useEffect(() => {
     if (solved) {
       setMsg("Solved ✅");
       // lock input to the correct answer for a “finished” look
@@ -828,7 +808,7 @@ function Gift2CipherPuzzle({
           disabled={solved}
           onChange={(e) => {
             setVal(e.target.value);
-            logEvent("gift2_input_change", { len: e.target.value.length });
+            logEvent("gift2_input_change", { len: e.target.value });
           }}
         />
         <button className="btn primary" onClick={submit} disabled={solved}>
@@ -842,7 +822,6 @@ function Gift2CipherPuzzle({
           disabled={solved}
           onClick={() => {
             setHint(true);
-            logEvent("gift2_hint_clicked");
           }}
         >
           Hint
@@ -882,15 +861,6 @@ function Gift3ChessPuzzle({
   const [selected, setSelected] = useState<Square | null>(null);
   const [toast, setToast] = useState("Tap a piece, then a square. Hint: give check.");
 
-  useEffect(() => {
-    logEvent("gift_opened", { gift: 3 });
-    logEvent("gift3_stage_viewed", { stage });
-  }, []);
-
-  useEffect(() => {
-    logEvent("gift3_stage_viewed", { stage });
-  }, [stage]);
-
   const allowedMoveForStage = (): { from: Square; to: Square } => {
     if (stage === 1) return { from: "c4", to: "f7" };
     if (stage === 2) return { from: "e4", to: "g5" };
@@ -920,7 +890,6 @@ function Gift3ChessPuzzle({
       }
       setSelected(sq);
       setToast("Now choose the destination square ✨");
-      logEvent("gift3_piece_selected", { sq, stage });
       return;
     }
 
@@ -937,7 +906,6 @@ function Gift3ChessPuzzle({
 
     // Correct move
     logEvent("gift3_move_attempt", { ...attempt, correct: true });
-    animateMove(from, to);
 
     const next = move(board, from, to);
     setBoard(next);
@@ -948,13 +916,11 @@ function Gift3ChessPuzzle({
       if (stage === 1) {
         // ...Kxf7 : g8 -> f7 (capture bishop)
         setBoard((b) => move(b, "g8", "f7"));
-        logEvent("gift3_opponent_move", { from: "g8", to: "f7" });
         setStage(2);
         setToast("Nice. Again.");
       } else if (stage === 2) {
         // ...Kf6 : f7 -> f6
         setBoard((b) => move(b, "f7", "f6"));
-        logEvent("gift3_opponent_move", { from: "f7", to: "f6" });
         setStage(3);
         setToast("One last move.");
       } else {
@@ -978,7 +944,6 @@ function Gift3ChessPuzzle({
           disabled={solved}
           onClick={() => {
             setToast(stage === 1 ? "Try a checking move with the bishop." : stage === 2 ? "Knight jumps are sneaky." : "Queen finishes it.");
-            logEvent("gift3_hint_clicked", { stage });
           }}
         >
           Hint
@@ -999,11 +964,6 @@ function Gift3ChessPuzzle({
       </div>
     </div>
   );
-}
-
-function animateMove(from: Square, to: Square) {
-  // purely for logging/feel; CSS handles main animations
-  logEvent("gift3_move_animated", { from, to });
 }
 
 function move(b: Record<Square, Piece>, from: Square, to: Square) {
@@ -1145,14 +1105,9 @@ function Gift4Choices({
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
 
-  useEffect(() => {
-    logEvent("gift_opened", { gift: 4 });
-  }, []);
-
   const choose = (choice: string) => {
     if (solved) return;
     const q = questions[idx];
-    logEvent("gift4_choice", { questionId: q.id, choice });
 
     setAnswers((p) => ({ ...p, [q.id]: choice }));
     if (idx < questions.length - 1) setIdx(idx + 1);
