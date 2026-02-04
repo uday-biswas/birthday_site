@@ -43,7 +43,6 @@ export default function App() {
 
   const unlockGift = (gift: GiftId) => {
   setUnlocked((prev) => ({ ...prev, [gift]: true }));
-  logEvent("gift_unlocked", { gift });
 
   // ✅ fire confetti + show image overlay
   premiumConfettiBurst(gift === 4 ? "big" : "medium");
@@ -511,11 +510,6 @@ function Intro({ onDone }: { onDone: () => void }) {
   // ✅ import your image
   // If Vite complains, make sure the file exists exactly at this path.
   const imgUrl = new URL("./assets/cuteDogCamera.jpg", import.meta.url).toString();
-
-  useEffect(() => {
-    if (!showImage) logEvent("intro_step_viewed", { step: steps[i], index: i });
-    else logEvent("intro_image_viewed");
-  }, [i, showImage]);
 
   useEffect(() => {
     const t = setTimeout(() => {
