@@ -966,11 +966,6 @@ function Gift3ChessPuzzle({
     }, 450);
   };
 
-  const highlight = useMemo(() => {
-    const { from, to } = allowedMoveForStage();
-    return { from, to };
-  }, [stage]);
-
   return (
     <div className="puzzle">
       <div className="row spread">
